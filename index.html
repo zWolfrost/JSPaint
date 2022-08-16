@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <title>JS Paint</title>
+      <link rel="icon" href="assets/paint.ico">
+      
+      <link rel="stylesheet" href="style.css">
+      <script src="script.js" defer></script>
+   </head>
+
+   <body>
+
+      <br>
+
+      <div>
+         <button id="pencil">✏️</button>
+         <button id="eraser">🧽</button>
+         <button id="bucket">💧</button>
+         <button id="clear">🧹</button>
+         <button id="cut">✂️</button>
+         <select id="save">
+            <option value="0" hidden selected>💾</option>
+
+            <option disabled>Save</option>
+            <option value="save1">Slot 1</option>
+            <option value="save2">Slot 2</option>
+            <option value="save3">Slot 3</option>
+
+            <option disabled></option>
+            <option disabled>Load</option>
+            <option value="load1" id="load1">Slot 1</option>
+            <option value="load2" id="load2">Slot 2</option>
+            <option value="load3" id="load3">Slot 3</option>
+
+            <option disabled></option>
+            <option disabled>Other</option>
+            <option value="clear">Clear Slots</option>
+            <option value="download">Download</option>
+            <option value="upload">Upload</option>
+         </select>
+      </div>
+
+      <div>
+         <button id="line">➖</button>
+         <button id="square">⬛</button>
+         <button id="circle">⚫</button>
+         <button id="text">💬</button>
+
+         &emsp;
+         
+         <button id="undo">↩</button>
+         <button id="redo">↪</button>
+      </div>
+      
+      <br>
+
+      <div id="drawingCanvasContainer">
+         <canvas id="drawingCanvas" width="500" height="500"></canvas>
+
+         <input type="text" id="textinput" placeholder="Insert text">
+
+         <input type="range" id="tollerancebar" class="range" min="0" max="255" value="20"/>
+         <label id="tollerancelabel"></label>
+         <button id="tollerancebutton">Show</button>
+      </div>
+
+      <br>
+      
+      <div>
+         &nbsp;
+         <input type="color" id="colorpicker"
+         ><button id="red" class="colors">🔴</button
+         ><button id="orange" class="colors">🟠</button
+         ><button id="yellow" class="colors">🟡</button
+         ><button id="green" class="colors">🟢</button
+         ><button id="blue" class="colors">🔵</button
+         ><button id="purple" class="colors">🟣</button
+         ><button id="black" class="colors">⚫</button
+         ><button id="white" class="colors">⚪</button>
+      </div>
+
+      <input type="range" id="sizebar" class="range" min="1" max="25" value="3"/>
+      <div id="sizecount"></div>
+
+      <input type="file" id="uploadimg" accept="image/*" style="display:none"/>
+
+      <div id="blocker"></div>
+      <div id="loader" class="loader"></div>
+      <div id="error507" class="toast">Error 507: Insufficient Storage. Consider downloading your image or clearing the slots!</div>
+   </body>
+</html>
