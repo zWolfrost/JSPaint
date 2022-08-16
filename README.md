@@ -1,5 +1,6 @@
 # JSPaint
-Web-based Paint written in html and javascript. Supports a bunch of stuff
+Web-based Paint written in html and javascript. Supports a bunch of stuff.
+Live on https://zwolfrost.github.io/JSPaint/
 
 Supports:
 - Basic Paint Tools
