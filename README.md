@@ -1,4 +1,4 @@
-# jspaint.github.io
+# JSPaint
 Web-based Paint written in html and javascript. Supports a bunch of stuff
 
 Supports:
