@@ -1,45 +1,25 @@
 "use strict";
 
-const CANVASCONT = $("drawingCanvasContainer");
-const CANVAS = $("drawingCanvas");
+const CANVASCONT = $("#drawingCanvasContainer")[0];
+const CANVAS = $("#drawingCanvas")[0];
 const CONTEXT = CANVAS.getContext("2d");
 
-const PENCIL = $("pencil");
-const ERASER = $("eraser");
-const BUCKET = $("bucket");
-const CLEAR = $("clear");
-const CUT = $("cut");
+const TOLLERANCEBAR = $("#tollerancebar")[0];
+const TOLLERANCELAB = $("#tollerancelabel")[0];
+const TOLLERANCEBTN = $("#tollerancebutton")[0];
 
-const TOLLERANCEBAR = $("tollerancebar");
-const TOLLERANCELAB = $("tollerancelabel");
-const TOLLERANCEBTN = $("tollerancebutton");
+const TEXTINPUT = $("#textinput")[0];
 
-const LINE = $("line");
-const SQUARE = $("square");
-const CIRCLE = $("circle");
+const LOAD1 = $("#load1")[0];
+const LOAD2 = $("#load2")[0];
+const LOAD3 = $("#load3")[0];
 
-const TEXT = $("text");
-const TEXTINPUT = $("textinput");
+const UNDO = $("#undo")[0];
+const REDO = $("#redo")[0];
 
-const SAVE = $("save");
-const LOAD1 = $("load1");
-const LOAD2 = $("load2");
-const LOAD3 = $("load3");
-
-const UNDO = $("undo");
-const REDO = $("redo");
-
-const COLORPICKER = $("colorpicker");
-const COLORS = $(".colors");
-
-const SIZEBAR = $("sizebar");
-const SIZECOUNT = $("sizecount");
-
-const UPLOADIMG = $("uploadimg");
-
-const BLOCKER = $("blocker");
-const LOADER = $("loader");
-const ERROR507 = $("error507");
+const BLOCKER = $("#blocker")[0];
+const LOADER = $("#loader")[0];
+const ERROR507 = $("#error507")[0];
 
 
 HTMLElement.prototype.animate = function(name, seconds=1, mode="ease-in-out", repetitions=1, reset=true, callback=null)
@@ -52,7 +32,7 @@ HTMLElement.prototype.animate = function(name, seconds=1, mode="ease-in-out", re
    }
 
    this.style.animation = `${name} ${seconds}s ${mode} ${repetitions}`;
-   
+
    this.addEventListener("animationend", function()
    {
       this.style.animation = "none";
@@ -66,11 +46,11 @@ CanvasRenderingContext2D.prototype.saveToHistory = function()
    history.push({pixels: this.getPixelData(), width: this.canvas.width, height: this.canvas.height});
 };
 
-CanvasRenderingContext2D.prototype.getPixelData = function(begX = 0, begY = 0, endX = this.canvas.width, endY = this.canvas.height)
+CanvasRenderingContext2D.prototype.getPixelData = function(begX=0, begY=0, endX=this.canvas.width, endY=this.canvas.height)
 {
    return this.getImageData(begX, begY, endX - begX, endY - begY).data;
 };
-CanvasRenderingContext2D.prototype.putPixelData = function(pixelData, begX = 0, begY = 0, endX = this.canvas.width, endY = this.canvas.height, putX = begX, putY = begY)
+CanvasRenderingContext2D.prototype.putPixelData = function(pixelData, begX=0, begY=0, endX=this.canvas.width, endY=this.canvas.height, putX=begX, putY=begY)
 {
    let imgData = this.getImageData(begX, begY, endX - begX, endY - begY);
 
@@ -79,27 +59,45 @@ CanvasRenderingContext2D.prototype.putPixelData = function(pixelData, begX = 0, 
    this.putImageData(imgData, putX, putY);
 };
 
-Object.prototype.fillWith = function(...values)
-{
-   for (let i=0; i < this.length; i++) this[i] = values[i % values.length];
-   return this;
-};
 
+$(CANVASCONT).resizable({
+   handles: "se",
+   classes: {"ui-resizable-handle": "ui-icon ui-icon-grip-diagonal-se"},
+   helper: "drawingCanvasContainer-helper",
 
-new MutationObserver(() => setCanvasSize(CANVAS, CANVASCONT.clientWidth, CANVASCONT.clientHeight)).observe(CANVASCONT, {attributes: true});
+   minHeight: 100,
+   minWidth:  100,
+   maxHeight: 1920,
+   maxWidth:  1920,
 
+   resize: function(event, ui)
+   {
+      const minWidth = 100;
+      const maxWidth = 1920;
 
-CANVASCONT.addEventListener("contextmenu", e => e.preventDefault());
+      ui.size.width += ui.size.width - ui.originalSize.width;
 
-CANVASCONT.addEventListener("touchstart", touchHandler, true);
-CANVASCONT.addEventListener("touchmove", touchHandler, true);
-CANVASCONT.addEventListener("touchend", touchHandler, true);
-CANVASCONT.addEventListener("touchcancel", touchHandler, true);
+      let finalWidth = (ui.size.width < minWidth) ? minWidth : (ui.size.width > maxWidth) ? maxWidth : ui.size.width;
 
+      ui.helper.css("left", ui.position.left + (ui.originalSize.width - finalWidth)/2);
+   },
 
-$("black").style.outline = "2px dashed darkgray";
+   stop: function(event, ui)
+   {
+      const minWidth = 100;
+      const maxWidth = 1920;
 
-dynamicInput(TEXTINPUT)
+      let finalWidth = (ui.size.width < minWidth) ? minWidth : (ui.size.width > maxWidth) ? maxWidth : ui.size.width;
+      let borderSize = +ui.element.css("border-width").slice(0, -2);
+
+      ui.element.css("width",  (finalWidth     - borderSize*2) + "px");
+      ui.element.css("height", (ui.size.height - borderSize*2) + "px");
+
+      setCanvasSize(CANVAS, CANVASCONT.clientWidth, CANVASCONT.clientHeight);
+      CONTEXT.saveToHistory();
+   }
+});
+
 
 setInterval(function()
 {
@@ -109,7 +107,7 @@ setInterval(function()
 
       TOLLERANCEBTN.style.color = `rgb(${tolleranceColor[0]},${tolleranceColor[1]},${tolleranceColor[2]})`;
       TOLLERANCELAB.style.color = `rgb(${tolleranceColor[0]},${tolleranceColor[1]},${tolleranceColor[2]})`;
-   
+
       if (CANVASCONT.clientWidth < 320) TOLLERANCELAB.innerText = TOLLERANCELAB.innerText.replace("Fill Tollerance = ", "Tol:");
       else TOLLERANCELAB.innerText = TOLLERANCELAB.innerText.replace("Tol:", "Fill Tollerance = ");
    }
@@ -121,9 +119,24 @@ setInterval(function()
 }, 1000);
 
 
+CANVASCONT.addEventListener("contextmenu", e => e.preventDefault());
+
+CANVASCONT.addEventListener("touchstart", touchHandler, true);
+CANVASCONT.addEventListener("touchmove", touchHandler, true);
+CANVASCONT.addEventListener("touchend", touchHandler, true);
+CANVASCONT.addEventListener("touchcancel", touchHandler, true);
+
+
+$("#black")[0].style.outline = "2px dashed darkgray";
+
+dynamicInput(TEXTINPUT)
+
+
 CONTEXT.lineCap = "round";
 CONTEXT.lineJoin = "round";
-CONTEXT.filter = "url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxmaWx0ZXIgaWQ9ImZpbHRlciIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj48ZmVDb21wb25lbnRUcmFuc2Zlcj48ZmVGdW5jUiB0eXBlPSJpZGVudGl0eSIvPjxmZUZ1bmNHIHR5cGU9ImlkZW50aXR5Ii8+PGZlRnVuY0IgdHlwZT0iaWRlbnRpdHkiLz48ZmVGdW5jQSB0eXBlPSJkaXNjcmV0ZSIgdGFibGVWYWx1ZXM9IjAgMSIvPjwvZmVDb21wb25lbnRUcmFuc2Zlcj48L2ZpbHRlcj48L3N2Zz4=#filter)";
+CONTEXT.filter = "url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxmaWx0ZXIgaWQ9ImZpbHRlciIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCU"+
+"iIGhlaWdodD0iMTAwJSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj48ZmVDb21wb25lbnRUcmFuc2Zlcj48ZmVGdW5jUiB0eXBlPSJpZGVudGl0eSIvPjxmZUZ1bmNHIHR5cGU9ImlkZW50a"+
+"XR5Ii8+PGZlRnVuY0IgdHlwZT0iaWRlbnRpdHkiLz48ZmVGdW5jQSB0eXBlPSJkaXNjcmV0ZSIgdGFibGVWYWx1ZXM9IjAgMSIvPjwvZmVDb21wb25lbnRUcmFuc2Zlcj48L2ZpbHRlcj48L3N2Zz4=#filter)";
 
 CONTEXT.putPixelData(CONTEXT.getPixelData().fill(255));
 
@@ -138,19 +151,19 @@ let cutData = {canCut: true, pixels: null, width: 0, height: 0, ctrlv: false};
 let opt = {obj: null, event: null, fun: null, color: "black", size: 3};
 
 
-PENCIL.addEventListener("click", function()
+$("#pencil")[0].addEventListener("click", function()
 {
    this.animate("shake", 0.25);
    if (opt.obj !== null) opt.obj.style.outline = "none";
    opt.obj = this;
    opt.obj.style.outline = "2px dashed darkgray";
 
-   CANVAS.style.cursor = "url(cursors/pencil.cur), auto";
+   CANVAS.style.cursor = "url(assets/pencil.cur), auto";
 
    TEXTINPUT.style.display = "none";
    TEXTINPUT.value = "";
    CANVAS.removeEventListener("mousedown", opt.fun);
-   
+
    opt.fun = function()
    {
       window.addEventListener("mouseup", () => CONTEXT.saveToHistory(), {once: true});
@@ -159,14 +172,14 @@ PENCIL.addEventListener("click", function()
 
    CANVAS.addEventListener("mousedown", opt.fun);
 });
-ERASER.addEventListener("click", function()
+$("#eraser")[0].addEventListener("click", function()
 {
    this.animate("shake", 0.25);
    if (opt.obj !== null) opt.obj.style.outline = "none";
    opt.obj = this;
    opt.obj.style.outline = "2px dashed darkgray";
 
-   CANVAS.style.cursor = "url(cursors/eraser.cur), auto";
+   CANVAS.style.cursor = "url(assets/eraser.cur), auto";
 
    TEXTINPUT.style.display = "none";
    TEXTINPUT.value = "";
@@ -180,14 +193,14 @@ ERASER.addEventListener("click", function()
 
    CANVAS.addEventListener("mousedown", opt.fun);
 });
-BUCKET.addEventListener("click", function()
+$("#bucket")[0].addEventListener("click", function()
 {
    this.animate("shake", 0.25);
    if (opt.obj !== null) opt.obj.style.outline = "none";
    opt.obj = this;
    opt.obj.style.outline = "2px dashed darkgray";
-   
-   CANVAS.style.cursor = "url(cursors/bucket.cur), auto";
+
+   CANVAS.style.cursor = "url(assets/bucket.cur), auto";
 
    TEXTINPUT.style.display = "none";
    TEXTINPUT.value = "";
@@ -236,7 +249,7 @@ TOLLERANCEBTN.addEventListener("click", function()
    }
 });
 
-CLEAR.addEventListener("click", function()
+$("#clear")[0].addEventListener("click", function()
 {
    this.animate("shake", 0.25);
 
@@ -244,13 +257,13 @@ CLEAR.addEventListener("click", function()
 
    CONTEXT.saveToHistory();
 });
-CUT.addEventListener("click", function()
+$("#cut")[0].addEventListener("click", function()
 {
    this.animate("shake", 0.25);
    if (opt.obj !== null) opt.obj.style.outline = "none";
    opt.obj = this;
    opt.obj.style.outline = "2px dashed darkgray";
-   
+
    CANVAS.style.cursor = "crosshair";
 
    TEXTINPUT.style.display = "none";
@@ -265,13 +278,13 @@ CUT.addEventListener("click", function()
    CANVAS.addEventListener("mousedown", opt.fun);
 });
 
-LINE.addEventListener("click", function()
+$("#line")[0].addEventListener("click", function()
 {
    this.animate("bounce", 0.15);
    if (opt.obj !== null) opt.obj.style.outline = "none";
    opt.obj = this;
    opt.obj.style.outline = "2px dashed darkgray";
-   
+
    CANVAS.style.cursor = "crosshair";
 
    TEXTINPUT.style.display = "none";
@@ -286,13 +299,13 @@ LINE.addEventListener("click", function()
 
    CANVAS.addEventListener("mousedown", opt.fun);
 });
-SQUARE.addEventListener("click", function()
+$("#square")[0].addEventListener("click", function()
 {
    this.animate("bounce", 0.15);
    if (opt.obj !== null) opt.obj.style.outline = "none";
    opt.obj = this;
    opt.obj.style.outline = "2px dashed darkgray";
-   
+
    CANVAS.style.cursor = "crosshair";
 
    TEXTINPUT.style.display = "none";
@@ -307,13 +320,13 @@ SQUARE.addEventListener("click", function()
 
    CANVAS.addEventListener("mousedown", opt.fun);
 });
-CIRCLE.addEventListener("click", function()
+$("#circle")[0].addEventListener("click", function()
 {
    this.animate("bounce", 0.15);
    if (opt.obj !== null) opt.obj.style.outline = "none";
    opt.obj = this;
    opt.obj.style.outline = "2px dashed darkgray";
-   
+
    CANVAS.style.cursor = "crosshair";
 
    TEXTINPUT.style.display = "none";
@@ -328,7 +341,7 @@ CIRCLE.addEventListener("click", function()
 
    CANVAS.addEventListener("mousedown", opt.fun);
 });
-TEXT.addEventListener("click", function()
+$("#text")[0].addEventListener("click", function()
 {
    this.animate("bounce", 0.15);
    if (opt.obj !== null) opt.obj.style.outline = "none";
@@ -344,12 +357,12 @@ TEXT.addEventListener("click", function()
    txtMode()
 });
 
-SAVE.addEventListener("input", function()
+$("#save")[0].addEventListener("input", function()
 {
    this.animate("shake", 0.25);
 
-   let option = SAVE.value;
-   SAVE.value = "0";
+   let option = this.value;
+   this.value = "0";
 
    switch (option)
    {
@@ -368,7 +381,7 @@ SAVE.addEventListener("input", function()
          {
             BLOCKER.style.display = "none";
             LOADER.style.display = "none";
-            
+
             try
             {
                localStorage.setItem(id + "data", event.data);
@@ -383,9 +396,9 @@ SAVE.addEventListener("input", function()
 
             checkStorage(["canvas1data", "canvas2data", "canvas3data"], [LOAD1, LOAD2, LOAD3]);
          };
-   
+
          worker.postMessage(CONTEXT.getPixelData());
-         
+
          break;
       }
 
@@ -399,7 +412,7 @@ SAVE.addEventListener("input", function()
          let id = "canvas" + option[option.length - 1];
 
          let worker = new Worker("scripts/dataDecompress.js");
-   
+
          worker.onmessage = function(event)
          {
             BLOCKER.style.display = "none";
@@ -407,7 +420,7 @@ SAVE.addEventListener("input", function()
 
             let datawidth = localStorage.getItem(id + "width");
             let dataheight = localStorage.getItem(id + "height");
-      
+
             CANVASCONT.style.width = datawidth + "px";
             CANVASCONT.style.height = dataheight + "px";
             setCanvasSize(CANVAS, datawidth, dataheight);
@@ -417,7 +430,7 @@ SAVE.addEventListener("input", function()
             history = [0];
             CONTEXT.saveToHistory();
          };
-   
+
          worker.postMessage(localStorage.getItem(id + "data"));
 
          break;
@@ -444,6 +457,8 @@ SAVE.addEventListener("input", function()
 
       case "upload":
       {
+         const UPLOADIMG = $("#uploadimg")[0];
+
          UPLOADIMG.click();
 
          UPLOADIMG.addEventListener("change", function()
@@ -477,34 +492,34 @@ REDO.addEventListener("click", function()
    else this.animate("bigShake", 0.2);
 });
 
-COLORPICKER.addEventListener("input", function()
+$("#colorpicker")[0].addEventListener("input", function()
 {
-   try {$(opt.color).style.outline = "none"}
-   catch {}
+   if (opt.color.charAt(0) !== "#") $("#"+opt.color)[0].style.outline = "none";
 
-   opt.color = COLORPICKER.value;
+   opt.color = this.value;
 });
-COLORS.forEach(color => color.addEventListener("click", () =>
+$(".colors").on("click", function()
 {
-   try {$(opt.color).style.outline = "none"}
-   catch {}
+   if (opt.color.charAt(0) !== "#") $("#"+opt.color)[0].style.outline = "none";
 
-   color.style.outline = "2px dashed darkgray";
-   
-   color.animate("bounce", 0.15);
-   opt.color = color.id;
-}));
-SIZEBAR.addEventListener("input", function()
+   this.style.outline = "2px dashed darkgray";
+
+   this.animate("bounce", 0.15);
+   opt.color = this.id;
+});
+$("#sizebar")[0].addEventListener("input", function()
 {
-   opt.size = SIZEBAR.value;
+   const SIZECOUNT = $("#sizecount")[0];
+
+   opt.size = this.value;
 
    SIZECOUNT.style.visibility = "visible";
-   SIZECOUNT.innerText = SIZEBAR.value;
+   SIZECOUNT.innerText = this.value;
 
-   SIZECOUNT.style.fontSize = (+SIZEBAR.value * 0.8) + 10 + "px";
-   SIZECOUNT.style.left = -210 + +SIZEBAR.value*16.2 + "px";
+   SIZECOUNT.style.fontSize = (+this.value * 0.8) + 10 + "px";
+   SIZECOUNT.style.left = -210 + +this.value*16.2 + "px";
 
-   SIZEBAR.addEventListener("change", () => SIZECOUNT.style.visibility = "hidden", {once: true});
+   this.addEventListener("change", () => SIZECOUNT.style.visibility = "hidden", {once: true});
 });
 
 CANVASCONT.addEventListener("dragenter", () => CANVASCONT.style.border = "2px dashed darkgray");
@@ -514,9 +529,9 @@ CANVASCONT.addEventListener("drop", function(e)
 {
    e.preventDefault();
    e.stopPropagation();
-   
+
    this.style.border = "2px solid black";
-   
+
    uploadImage(e.dataTransfer.files[0]);
 });
 
@@ -526,12 +541,6 @@ window.addEventListener("keydown", function(e)
    {
       switch (e.key)
       {
-         case "d":
-         {
-            CLEAR.click();
-            break;
-         }
-
          case "z":
          {
             if (history[0] >= 2)
@@ -565,7 +574,7 @@ function drawMode(canvas, size, color)
 {
    let context = canvas.getContext("2d");
    let mouse = {x: mousePos().x, y: mousePos().y};
-   
+
    let pencilSession = function()
    {
       mouse = {oldx: mouse.x, oldy: mouse.y, x: mousePos().x, y: mousePos().y};
@@ -584,7 +593,7 @@ function eraseMode(canvas, color)
    let context = canvas.getContext("2d");
    let mouse = {x: mousePos().x, y: mousePos().y};
    let sizeAverage = 2;
-   
+
    let pencilSession = function()
    {
       mouse = {oldx: mouse.x, oldy: mouse.y, x: mousePos().x, y: mousePos().y};
@@ -608,13 +617,13 @@ function fillMode(canvas, color, tollerance)
 {
    CanvasRenderingContext2D.prototype.floodFill = function(startX, startY, newRGB, tollerance=0)
    {
-      Object.prototype.substitute = function(sub = [], index = 0)
+      function substitute(data, sub = [], index = 0)
       {
-         for (let i=0; i<sub.length; i++) this[index+i] = sub[i];
+         for (let i=0; i<sub.length; i++) data[index+i] = sub[i];
       };
-      Object.prototype.matchesSubAt = function(sub = [], index = 0, tollerance = 0)
+      function matchesSubAt(data, sub = [], index = 0, tollerance = 0)
       {
-         for (let i=0; i<sub.length; i++) if (Math.abs(this[index+i] - sub[i]) > tollerance) return false;
+         for (let i=0; i<sub.length; i++) if (Math.abs(data[index+i] - sub[i]) > tollerance) return false;
          return true;
       };
 
@@ -625,7 +634,7 @@ function fillMode(canvas, color, tollerance)
       let imgData = this.getPixelData();
 
       let startIndex = (startX + startY * width) * 4;
-      
+
       let startRGB = imgData.slice(startIndex, startIndex + 3);
 
       let pixelStack = [[startX, startY]];
@@ -641,7 +650,7 @@ function fillMode(canvas, color, tollerance)
 
          pixelInd = (x + y * width) * 4;
 
-         while(y >= 0 && imgData.matchesSubAt(startRGB, pixelInd, tollerance))
+         while(y >= 0 && matchesSubAt(imgData, startRGB, pixelInd, tollerance))
          {
             y--;
             pixelInd -= widthIndex;
@@ -655,11 +664,11 @@ function fillMode(canvas, color, tollerance)
 
          do
          {
-            imgData.substitute(newRGB, pixelInd);
+            substitute(imgData, newRGB, pixelInd);
 
             if (x > 0)
             {
-               if (imgData.matchesSubAt(startRGB, pixelInd - 4, tollerance) && !imgData.matchesSubAt(newRGB, pixelInd - 4))
+               if (matchesSubAt(imgData, startRGB, pixelInd - 4, tollerance) && matchesSubAt(imgData, newRGB, pixelInd - 4) == false)
                {
                   if (!reachLeft)
                   {
@@ -673,7 +682,7 @@ function fillMode(canvas, color, tollerance)
 
             if (x < width-1)
             {
-               if (imgData.matchesSubAt(startRGB, pixelInd + 4, tollerance) && !imgData.matchesSubAt(newRGB, pixelInd + 4))
+               if (matchesSubAt(imgData, startRGB, pixelInd + 4, tollerance) && matchesSubAt(imgData, newRGB, pixelInd + 4) == false)
                {
                   if (!reachRight)
                   {
@@ -681,12 +690,12 @@ function fillMode(canvas, color, tollerance)
                      reachRight = true;
                   }
                }
-               
+
                else if (reachRight) reachRight = false;
             }
 
             pixelInd += widthIndex;
-         } while (y++ <= height-1 && imgData.matchesSubAt(startRGB, pixelInd, tollerance));
+         } while (y++ <= height-1 && matchesSubAt(imgData, startRGB, pixelInd, tollerance));
       }
 
       this.putPixelData(imgData);
@@ -710,7 +719,7 @@ function fillMode(canvas, color, tollerance)
    let mouse = mousePos();
    let rgb = color[0] == "#" ? hexToRGB(color) : COLORSRGB[color];
 
-   context.floodFill(mouse.x, mouse.y, rgb, tollerance);
+   context.floodFill(mouse.x, mouse.y, rgb, tollerance)
 };
 function cutMode(canvas)
 {
@@ -727,9 +736,9 @@ function cutMode(canvas)
 
       drawRect(context, [mouse.begX-1, mouse.begY-1], [mouse.x, mouse.y], 1, "black", 5);
    }
-   
+
    window.addEventListener("mousemove", cutSession);
-   
+
 
    let moveCutSession = function()
    {
@@ -760,7 +769,7 @@ function cutMode(canvas)
             context.putPixelData(tempPixelData);
             context.putPixelData([...cut.pixels].fill(255), cut.begX, cut.begY, cut.endX, cut.endY);
             if (cutData.ctrlv == false) tempPixelData = context.getPixelData();
-            
+
             context.putPixelData(cut.pixels, cut.begX, cut.begY, cut.endX, cut.endY);
             drawRect(context, [cut.begX-1, cut.begY-1], [cut.endX, cut.endY], 1, "black", 5);
 
@@ -822,7 +831,7 @@ function cutMode(canvas)
                case "c":
                {
                   context.putPixelData(tempPixelData);
-            
+
                   cutData.pixels = cut.pixels;
                   cutData.width = cut.endX - cut.begX;
                   cutData.height = cut.endY - cut.begY;
@@ -834,15 +843,15 @@ function cutMode(canvas)
                {
                   context.putPixelData(tempPixelData);
                   context.putPixelData(cutData.pixels, 0, 0, cutData.width, cutData.height);
-      
+
                   cut.pixels = context.getPixelData(0, 0, cutData.width, cutData.height);
                   cut.begX = 0;
                   cut.begY = 0;
                   cut.endX = cutData.width;
                   cut.endY = cutData.height;
-            
+
                   drawRect(context, [0, 0], [cutData.width, cutData.height], 1, "black", 5);
-      
+
                   cutData.ctrlv = true;
 
                   break;
@@ -858,12 +867,12 @@ function cutMode(canvas)
                {
                   window.removeEventListener("keydown", keyDown);
                   window.removeEventListener("mousedown", waitDrag);
-      
+
                   context.putPixelData(tempPixelData);
                   context.putPixelData([...cut.pixels].fill(255), cut.begX, cut.begY, cut.endX, cut.endY);
-      
+
                   cutData.canCut = true;
-      
+
                   context.saveToHistory();
 
                   break;
@@ -978,13 +987,13 @@ function txtMode()
 
          let txt = {text: TEXTINPUT.value, fontSize: fontSize, font: font, color: opt.color};
 
-         
+
          TEXTINPUT.value = "";
 
          CONTEXT.font = `${txt.fontSize}px ${txt.font}`;
          const textWidth = CONTEXT.measureText(txt.text).width;
 
-         
+
          let rect = {
             begX: CANVAS.width/2 - textWidth/2 - 5,
             begY: CANVAS.height/2 - txt.fontSize + 12,
@@ -1000,11 +1009,11 @@ function txtMode()
 
          txt.x = rect.begX - textWidth/2 + (rect.endX - rect.begX)/2;
          txt.y = rect.endY - (txt.fontSize/3);
-         
+
          drawText(CONTEXT, txt.text, txt.x, txt.y, txt.fontSize, txt.color, txt.font);
          drawRect(CONTEXT, [rect.begX, rect.begY], [rect.endX, rect.endY], 1, "black", 5);
 
-         
+
          let waitDrag = function()
          {
             if (mousePos().x > rect.begX && mousePos().x < rect.endX && mousePos().y > rect.begY && mousePos().y < rect.endY)
@@ -1012,37 +1021,37 @@ function txtMode()
                CONTEXT.putPixelData(tempPixelData);
                drawText(CONTEXT, txt.text, txt.x, txt.y, txt.fontSize, txt.color, txt.font);
                drawRect(CONTEXT, [rect.begX, rect.begY], [rect.endX, rect.endY], 1, "black", 5);
-   
+
                let mouse = {begX: mousePos().x, begY: mousePos().y};
-               
+
                let txtMove = function()
                {
                   mouse.x = mousePos().x;
                   mouse.y = mousePos().y;
-   
+
                   rect.newBegX = rect.begX + mouse.x - mouse.begX;
                   rect.newBegY = rect.begY + mouse.y - mouse.begY;
                   rect.newEndX = rect.endX + mouse.x - mouse.begX;
                   rect.newEndY = rect.endY + mouse.y - mouse.begY;
-   
+
                   CONTEXT.putPixelData(tempPixelData);
                   drawText(CONTEXT, txt.text, rect.newBegX-textWidth/2+(rect.endX-rect.begX)/2, rect.newEndY-(txt.fontSize/3), txt.fontSize, txt.color, txt.font);
                   drawRect(CONTEXT, [rect.newBegX, rect.newBegY], [rect.newEndX, rect.newEndY], 1, "black", 5);
                }
-   
+
                window.addEventListener("mousemove", txtMove);
-   
+
                window.addEventListener("mouseup", function()
                {
                   window.removeEventListener("mousemove", txtMove);
-   
+
                   CONTEXT.putPixelData(tempPixelData);
                   drawText(CONTEXT, txt.text, rect.newBegX-textWidth/2+(rect.endX-rect.begX)/2, rect.newEndY-(txt.fontSize/3), txt.fontSize, txt.color, txt.font);
 
                   CONTEXT.saveToHistory();
                }, {once: true});
             }
-   
+
             else
             {
                CONTEXT.putPixelData(tempPixelData);
@@ -1063,10 +1072,10 @@ function txtMode()
 function drawLine(ctx, begpoints, endpoints, width=2, color="black")
 {
    ctx.beginPath();
-   
+
    ctx.strokeStyle = color;
    ctx.lineWidth = width;
-   
+
    ctx.moveTo(begpoints[0], begpoints[1]);
    ctx.lineTo(endpoints[0], endpoints[1]);
    ctx.stroke();
@@ -1076,7 +1085,7 @@ function drawLine(ctx, begpoints, endpoints, width=2, color="black")
 function drawRect(ctx, begpoints, endpoints, width=2, color="black", ...linedash)
 {
    ctx.beginPath();
-   
+
    ctx.strokeStyle = color;
    ctx.lineWidth = width;
    ctx.setLineDash(linedash);
@@ -1091,11 +1100,11 @@ function drawRect(ctx, begpoints, endpoints, width=2, color="black", ...linedash
 function drawEllipse(ctx, center, radius, width=2, color="black")
 {
    ctx.beginPath();
-   
+
    ctx.strokeStyle = color;
    ctx.lineWidth = width;
    ctx.setLineDash([]);
-   
+
    ctx.ellipse(center[0], center[1], radius[0], radius[1], Math.PI * 2, 0, Math.PI * 2);
    ctx.stroke();
 
@@ -1131,7 +1140,7 @@ function redoHistory(safe=true)
       CANVASCONT.style.width = succSave.width + "px";
       CANVASCONT.style.height = succSave.height + "px";
       setCanvasSize(CANVAS, succSave.width, succSave.height);
-      
+
       CONTEXT.putPixelData(succSave.pixels, 0, 0, succSave.width, succSave.height);
    }
 };
@@ -1204,11 +1213,11 @@ function mousePos(obj = CANVASCONT)
 function touchHandler(event)
 {
    let touches = event.changedTouches, first = touches[0], type = "";
-      
+
    switch(event.type)
    {
       case "touchstart": type = "mousedown"; break;
-      case "touchmove":  type = "mousemove"; break;        
+      case "touchmove":  type = "mousemove"; break;
       case "touchend":   type = "mouseup";   break;
       default: return;
    }
@@ -1217,12 +1226,12 @@ function touchHandler(event)
    {
       bubbles: true,
       cancelable: true,
-      
+
       screenX: first.screenX,
       screenY: first.screenY,
       clientX: first.clientX,
       clientY: first.clientY,
-      
+
       ctrlKey: false,
       shiftKey: false,
       altKey: false,
@@ -1248,7 +1257,7 @@ function dynamicInput(obj)
       context.font = font;
 
       let metrics = context.measureText(obj.value);
-      
+
       if (metrics.width > defSize)
       {
          while (metrics.width > maxSize)
@@ -1260,17 +1269,6 @@ function dynamicInput(obj)
       }
       else obj.style.width = defSize + "px";
    });
-};
-
-
-function $(el)
-{
-   switch (el.charAt(0))
-   {
-      case "#": return document.querySelector(el);
-      case ".": return document.querySelectorAll(el);
-      default:  return document.getElementById(el);
-   }
 };
 
 
@@ -1288,4 +1286,17 @@ function debug(text, id="debugText")
    }
 
    else document.getElementById(id).innerText = text;
+};
+
+function perf(fun, log=true)
+{
+   const BEG = performance.now();
+
+   fun?.();
+
+   const END = performance.now();
+
+   if (log) console.log(`perf: ${END-BEG}`);
+
+   return END - BEG;
 };

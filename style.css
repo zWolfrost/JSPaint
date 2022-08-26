@@ -23,7 +23,7 @@ button
    padding: 1px;
 
    cursor: pointer;
-   
+
    font-size: 25px;
    outline: none;
 }
@@ -63,6 +63,12 @@ br
    margin-top: 9px;
 }
 
+.fa-solid
+{
+   padding: 5px;
+   padding-bottom: 2px;
+}
+
 #undo, #redo
 {
    position: relative;
@@ -75,16 +81,21 @@ br
    border: 2px solid black;
    margin: auto;
 
-   resize: both;
    overflow: hidden;
+
+   position: relative;
+   width: 600px;
+   height: 600px;
+}
+.drawingCanvasContainer-helper
+{
+   border: 2px dashed black;
+   box-sizing: border-box;
+
    min-width: 100px;
    min-height: 100px;
    max-width: 1920px;
    max-height: 1920px;
-
-   position: relative;
-   width: 500px;
-   height: 500px;
 }
 
 #textinput
@@ -100,7 +111,7 @@ br
    transform: translate(-50%, -50%);
 
    width: 250px;
-   
+
    border-radius: 6px;
 
    background: #6E6D70;
@@ -155,7 +166,7 @@ br
    border-radius: 50%;
 
    background-image: linear-gradient(to left, indigo, blue, green, yellow, orange, red);
-   
+
    cursor: pointer;
 
    width: 29px;
@@ -194,7 +205,7 @@ br
 
 
 @keyframes shake
-{ 
+{
    0% {transform: rotate(12deg);}
    25% {transform: rotate(-12deg);}
    50% {transform: rotate(6deg);}
@@ -202,7 +213,7 @@ br
    100% {transform: rotate(0deg);}
 }
 @keyframes bigShake
-{ 
+{
    0% {transform: rotate(20deg);}
    25% {transform: rotate(-20deg);}
    50% {transform: rotate(10deg);}
@@ -249,10 +260,10 @@ br
    -webkit-appearance: none;
    width: 15px;
    height: 15px;
-   
+
    border-radius: 50%;
    background: #333;
-   
+
    cursor: pointer;
 }
 .range::-webkit-slider-thumb:hover {background: #666;}
@@ -280,7 +291,7 @@ br
 .loader
 {
    display: none;
-   
+
    font-size: 10px;
    width: 1em;
    height: 1em;
@@ -292,7 +303,7 @@ br
    transform: translate(-50%, -50%);
 
    filter: brightness(0%);
-   
+
    text-indent: -9999em;
    animation: loading 1.1s infinite ease;
    overflow: visible;

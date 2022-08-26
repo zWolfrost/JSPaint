@@ -4,9 +4,15 @@
       <meta charset="utf-8">
       <title>JS Paint</title>
       <link rel="icon" href="assets/paint.ico">
-      
+
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+      <link rel="stylesheet" href="libraries/jquery-ui.min.css">
+
+      <script src="libraries/jquery-3.6.0.min.js"></script>
+      <script src="libraries/jquery-ui.min.js"></script>
+
       <link rel="stylesheet" href="style.css">
-      <script src="script.js" defer></script>
+      <script type="module" src="script.js" defer></script>
    </head>
 
    <body>
@@ -42,21 +48,21 @@
       </div>
 
       <div>
-         <button id="line">➖</button>
-         <button id="square">⬛</button>
-         <button id="circle">⚫</button>
+         <button id="line" class="fa-solid fa-grip-lines"></button>
+         <button id="square" class="fa-solid fa-square"></button>
+         <button id="circle" class="fa-solid fa-circle"></button>
          <button id="text">💬</button>
 
          &emsp;
-         
+
          <button id="undo">↩</button>
          <button id="redo">↪</button>
       </div>
-      
+
       <br>
 
       <div id="drawingCanvasContainer">
-         <canvas id="drawingCanvas" width="500" height="500"></canvas>
+         <canvas id="drawingCanvas" width="600" height="600"></canvas>
 
          <input type="text" id="textinput" placeholder="Insert text">
 
@@ -66,7 +72,7 @@
       </div>
 
       <br>
-      
+
       <div>
          &nbsp;
          <input type="color" id="colorpicker"
